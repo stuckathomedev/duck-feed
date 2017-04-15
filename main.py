@@ -16,11 +16,6 @@ class Handler:
     def on_delete_window(*args):
         Gtk.main_quit(*args)
 
-    def on_menu_pressed(*args):
-        menu = builder.get_object('menu')
-        print("menu pressed")
-        menu.show_all()
-
     def on_search_btn_pressed(self, button):
         ddg_query = self.ddg_query_box.get_text()
         if not ddg_query == "":
@@ -33,5 +28,8 @@ builder.connect_signals(Handler())
 window = builder.get_object('window')
 window.show_all()
 
+builder.get_object('menu').set_popover(builder.get_object('popover'))
+
+# Fix keyboard interrupt not working
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 Gtk.main()
