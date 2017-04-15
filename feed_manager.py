@@ -10,12 +10,17 @@ class FeedManager:
 
     # Appends new feeds to the list taken from JSON
     def append_feed(self, feed):
-        self.sub_feeds.append(feed)
+        if feed not in self.sub_feeds:
+            self.sub_feeds.append(feed)
         print(self.sub_feeds)
 
     def remove_feed(self, feed):
-        self.sub_feeds.remove(feed)
+        if feed in self.sub_feeds:
+            self.sub_feeds.remove(feed)
         print(self.sub_feeds)
+
+    def get_feeds(self):
+        return self.sub_feeds
 
     # Overrides current text in JSON file, and updates with new list
     def update_json(self):

@@ -8,7 +8,8 @@ from feed_manager import FeedManager
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+gi.require_version('WebKit2', '4.0')
+from gi.repository import Gtk, GLib, WebKit2
 
 
 def process_site(site):
@@ -116,6 +117,23 @@ class ReaderHandler:
     def __init__(self, builder, feed_manager):
         self.builder = builder
         self.feed_manager = feed_manager
+
+        thread = threading.Thread(target=self.load_feeds)
+        thread.daemon = True
+        thread.start()
+
+    def load_feeds(self):
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            feed_tuples = executor.map(scrape_rss, self.feed_manager.get_feeds())
+        print("feeds", self.feed_manager.get_feeds())
+        print(list(feed_tuples))
+        items = []
+        for feed_tuple in feed_tuples:
+            feed = feed_tuple[0]
+            items.extend(feed.entries)
+        items.sort(key=lambda entry: entry.published)
+
+        print(items)
 
 
 def main():
