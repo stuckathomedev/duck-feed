@@ -23,12 +23,15 @@ def process_site(site):
         return None
 
 
-class Handler:
+class MainHandler:
     def __init__(self, builder, feed_manager):
+        self.builder = builder
         self.feed_manager = feed_manager
+        self.about_rss_window = builder.get_object('about_rss_window')
         self.ddg_query_box = builder.get_object('ddg_query_box')
         self.search_btn = builder.get_object('search_btn')
         self.feed_grid = builder.get_object('feed_grid')
+        self.finish_btn = builder.get_object('finish_btn')
         self.current_feed_grid_row = 2
 
         # Set up associations
@@ -40,10 +43,21 @@ class Handler:
         else:
             self.feed_manager.remove_feed(feed_link)
 
+    def on_finish_btn_clicked(self, btn):
+        self.feed_manager.update_json()
+        builder = Gtk.Builder()
+        builder.add_from_file('feed_reader.glade')
+        builder.connect_signals(ReaderHandler(self.builder, self.feed_manager))
+        window = builder.get_object('reader_window')
+        window.show_all()
+
+    def on_about_rss_btn_clicked(self, btn):
+        self.about_rss_window.show_all()
+
     def on_delete_window(*args):
         Gtk.main_quit(*args)
 
-    def on_search_btn_pressed(self, button):
+    def on_search_btn_pressed(self, btn):
         ddg_query = self.ddg_query_box.get_text()
         if not ddg_query == "":
 
@@ -54,10 +68,10 @@ class Handler:
                     feed_tuples = executor.map(process_site, potential_feed_sites)
                     for feed_tuple in feed_tuples:
                         if feed_tuple is not None:
-                            GLib.idle_add(display_feed, feed_tuple)
+                            GLib.idle_add(add_feed, feed_tuple)
                     GLib.idle_add(reenable_controls)
 
-            def display_feed(feed_tuple):
+            def add_feed(feed_tuple):
                 feed = feed_tuple[0]
                 feed_link = feed_tuple[1]
                 sub_btn = Gtk.CheckButton()
@@ -70,7 +84,12 @@ class Handler:
                 self.feed_grid.attach(title_label, 1, self.current_feed_grid_row, 1, 1)
                 title_label.show()
 
-                desc_label = Gtk.Label(feed["channel"]["description"])
+                try:
+                    feed_desc = feed["channel"]["description"]
+                except KeyError:
+                    feed_desc = ""
+
+                desc_label = Gtk.Label(feed_desc)
                 self.feed_grid.attach(desc_label, 2, self.current_feed_grid_row, 1, 1)
                 desc_label.show()
 
@@ -82,6 +101,7 @@ class Handler:
                 # Re-enable boxes
                 self.ddg_query_box.set_sensitive(True)
                 self.search_btn.set_sensitive(True)
+                self.finish_btn.set_sensitive(True)
 
             thread = threading.Thread(target=get_feeds_from_query)
             thread.daemon = True
@@ -92,12 +112,18 @@ class Handler:
             print("Starting query async...")
 
 
+class ReaderHandler:
+    def __init__(self, builder, feed_manager):
+        self.builder = builder
+        self.feed_manager = feed_manager
+
+
 def main():
     builder = Gtk.Builder()
-    builder.add_from_file('window.glade')
-    builder.connect_signals(Handler(builder, FeedManager()))
+    builder.add_from_file('main_window.glade')
+    builder.connect_signals(MainHandler(builder, FeedManager()))
 
-    window = builder.get_object('window')
+    window = builder.get_object('main_window')
     window.show_all()
 
     # Fix keyboard interrupt not working
