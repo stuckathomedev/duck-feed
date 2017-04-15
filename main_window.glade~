@@ -222,7 +222,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="title">Duck Feed</property>
-        <property name="subtitle">the best duck duck feeder</property>
+        <property name="subtitle">"the Netflix of RSS readers"</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkMenuButton" id="menu">

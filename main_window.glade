@@ -73,17 +73,17 @@
             <property name="column_spacing">5</property>
             <property name="column_homogeneous">True</property>
             <child>
-              <object class="GtkButton" id="search_btn">
-                <property name="label" translatable="yes">Search</property>
+              <object class="GtkLabel">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_search_btn_pressed" swapped="no"/>
+                <property name="can_focus">False</property>
+                <property name="margin_left">5</property>
+                <property name="margin_right">5</property>
+                <property name="margin_top">5</property>
+                <property name="margin_bottom">5</property>
+                <property name="label" translatable="yes">Search Query:</property>
               </object>
               <packing>
-                <property name="left_attach">3</property>
+                <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
               </packing>
             </child>
@@ -95,33 +95,22 @@
                 <property name="placeholder_text" translatable="yes">DuckDuckGo Search Query</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="top_attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">5</property>
-                <property name="margin_right">5</property>
-                <property name="margin_top">5</property>
-                <property name="margin_bottom">5</property>
-                <property name="label" translatable="yes">Search Query:</property>
-              </object>
-              <packing>
                 <property name="left_attach">1</property>
                 <property name="top_attach">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkImage">
+              <object class="GtkButton" id="search_btn">
+                <property name="label" translatable="yes">Search</property>
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="stock">gtk-missing-image</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_search_btn_pressed" swapped="no"/>
               </object>
               <packing>
-                <property name="left_attach">0</property>
+                <property name="left_attach">2</property>
                 <property name="top_attach">0</property>
               </packing>
             </child>
@@ -222,7 +211,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="title">Duck Feed</property>
-        <property name="subtitle">the best duck duck feeder</property>
+        <property name="subtitle">"the Netflix of RSS readers"</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkMenuButton" id="menu">

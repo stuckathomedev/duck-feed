@@ -1,4 +1,5 @@
 import threading
+import operator
 import signal
 import concurrent.futures
 from ddg_parser import get_links
@@ -122,21 +123,21 @@ class MainHandler:
             print("Starting query async...")
 
 
-@GtkTemplate(ui='feed.ui')
-class FeedEntryWidget(Gtk.Box):
-    __gtype_name__ = 'FeedEntryWidget'
-
-    title = GtkTemplate.Child()
-    url = GtkTemplate.Child()
-    description = GtkTemplate.Child()
-
-    def __init__(self, title, url, description):
-        super(Gtk.Box, self).__init__()
-        self.init_template()
-        self.title.set_text(title)
-        self.url.set_text(url)
-        self.description.set_text(description)
-
+def create_feed_entry(title, url, description):
+    container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+    title_label = Gtk.Label(title)
+    link_button = Gtk.LinkButton(url, url)
+    description_view = WebKit2.WebView()
+    description_view.set_size_request(400, 400)
+    description_view.load_html(description)
+    container.add(title_label)
+    container.add(link_button)
+    container.add(description_view)
+    container.show()
+    title_label.show()
+    link_button.show()
+    description_view.show()
+    return container
 
 class ReaderHandler:
     def __init__(self, builder, feed_manager):
@@ -144,23 +145,28 @@ class ReaderHandler:
         self.feed_manager = feed_manager
         self.box = builder.get_object('box')
         self.notebook = Gtk.Notebook()
-        self.notebook.show()
 
         self.box.add(self.notebook)
+        self.notebook.show()
 
         thread = threading.Thread(target=self.load_feeds)
         thread.daemon = True
         thread.start()
 
     def add_new_feed_tab(self, title, entries):
-        container = Gtk.Box()
+        scrolled_window = Gtk.ScrolledWindow()
+        container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         label = Gtk.Label(title)
         for entry in entries:
-            entryWidget = FeedEntryWidget(entry.title, "", "")
-            container.add(entryWidget)
-        container.show()
+            box = create_feed_entry(entry.title, entry.link, entry.description)
+            box.show()
+            container.add(box)
         label.show()
-        self.notebook.append_page(container, label)
+        scrolled_window.add(container)
+        scrolled_window.set_vexpand(True)
+        scrolled_window.set_overlay_scrolling(False) # show manly scrollbars
+        self.notebook.append_page(scrolled_window, label)
+        scrolled_window.show_all()
 
     def load_feeds(self):
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -171,8 +177,9 @@ class ReaderHandler:
             GLib.idle_add(self.add_new_feed_tab, feed.feed.title, feed.entries)
             # Load into frontpage-o
             frontpage_entries.extend(feed.entries)
-        #frontpage_entries.sort()
-        GLib.idle_add(self.add_new_feed_tab, "Frontpage", feed.entries)
+        frontpage_entries = sorted(frontpage_entries, key=operator.attrgetter('updated'))
+
+        GLib.idle_add(self.add_new_feed_tab, "Frontpage", frontpage_entries)
 
 
 def main():
