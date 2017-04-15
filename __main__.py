@@ -1,8 +1,8 @@
 import threading
 import signal
 from ddg_parser import get_links
-from webscrapper import scrape_web, NoLinkError
-from rssfeedscrapper import scrape_rss
+from web_scrapper import scrape_web, NoLinkError
+from rssfeed_scrapper import scrape_rss
 
 import gi
 gi.require_version('Gtk', '3.0')
