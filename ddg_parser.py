@@ -2,14 +2,23 @@ import requests
 from html.parser import HTMLParser
 from html.entities import name2codepoint
 
-# Gets user search query
-uquery = input("Search Query: ")
 
-# Submits query to Duck Duck Go
-r = requests.get("https://duckduckgo.com/?q=" + uquery)
-log = open("testlog.txt", "w+")
-log.write(r.text)
-log.close()
+# uquery stands for User Query
+def uquery():
+    # Gets user search query
+    uquery = input("Search Query: ")
+
+    # Submits query to Duck Duck Go
+    r = requests.get("https://duckduckgo.com/?q=" + uquery)
+
+    # Returns scraped data for DDG Parser
+    scraped_data = r.text
+
+    texcord = open("log.txt", "w+")
+    texcord.write(scraped_data)
+    texcord.close()
+
+    return scraped_data
 
 # DuckDuckGo HTML Parser
 class ddg_parser(HTMLParser):
@@ -19,7 +28,7 @@ class ddg_parser(HTMLParser):
             print("attr: ", attr)
 
     def handle_endtag(self, tag):
-        print("etag:")
+        print("etag: ", tag)
 
     def handle_data(self, data):
         print("data: ", data)
@@ -41,10 +50,13 @@ class ddg_parser(HTMLParser):
     def handle_decl(self, data):
         print("Decl: ", data)
 
-parser = ddg_parser
+parser = ddg_parser()
 
 
+def parser_feed(data):
+    feed_export = parser.feed(data)
+    return feed_export
 
-
-
+scraped_data = uquery()
+parser_feed(scraped_data)
 
