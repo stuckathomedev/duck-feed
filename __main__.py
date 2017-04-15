@@ -1,11 +1,12 @@
 import threading
 import signal
 from ddg_parser import get_links
+from webscrapper import scrape_web, NoLinkError
+from rssfeedscrapper import scrape_rss
 
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
-
 
 
 class Handler:
@@ -27,16 +28,30 @@ class Handler:
         ddg_query = self.ddg_query_box.get_text()
         if not ddg_query == "":
 
-            def get_rss_from_query():
-                potential_rss_sites = get_links(ddg_query)
-                print(potential_rss_sites)
-                GLib.idle_add(display_rss_results, str("moo"))
-            def display_rss_results(rss):
+            def get_feeds_from_query():
+                potential_feed_sites = get_links(ddg_query)
+                for site in potential_feed_sites:
+                    print("SITE: " + site)
+                    try:
+                        feed_link = scrape_web(site)
+                    except NoLinkError:
+                        continue
+
+                    print("FEED LINK: " + feed_link)
+                    feed = scrape_rss(feed_link)
+                    print("FEED: " + str(feed))
+                    GLib.idle_add(display_feed, feed)
+                GLib.idle_add(reenable_controls)
+
+            def display_feed(feed):
+                self.print(feed["channel"]["title"])
+
+            def reenable_controls():
                 # Re-enable boxes
                 self.ddg_query_box.set_sensitive(True)
                 self.search_btn.set_sensitive(True)
 
-            thread = threading.Thread(target=get_rss_from_query)
+            thread = threading.Thread(target=get_feeds_from_query)
             thread.daemon = True
             thread.start()
             # Disable boxes
