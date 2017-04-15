@@ -13,6 +13,9 @@ class Handler:
         self.search_btn = builder.get_object('search_btn')
         self.output_box = builder.get_object('output_box')
 
+        # Set up associations
+        builder.get_object('menu').set_popover(builder.get_object('popover'))
+
     def print(self, text):
         self.output_box.set_text(self.output_box.get_text() + "\n" + text)
 
@@ -25,14 +28,17 @@ class Handler:
 
             def get_rss_from_query():
                 potential_rss_sites = get_links(ddg_query)
+                print(potential_rss_sites)
                 GLib.idle_add(display_rss_results, str("moo"))
             def display_rss_results(rss):
+                # Re-enable boxes
                 self.ddg_query_box.set_sensitive(True)
                 self.search_btn.set_sensitive(True)
 
             thread = threading.Thread(target=get_rss_from_query)
             thread.daemon = True
             thread.start()
+            # Disable boxes
             self.ddg_query_box.set_sensitive(False)
             self.search_btn.set_sensitive(False)
             print("Starting query async...")
@@ -44,8 +50,6 @@ def main():
 
     window = builder.get_object('window')
     window.show_all()
-
-    builder.get_object('menu').set_popover(builder.get_object('popover'))
 
     # Fix keyboard interrupt not working
     signal.signal(signal.SIGINT, signal.SIG_DFL)
