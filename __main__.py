@@ -2,8 +2,9 @@ import threading
 import signal
 import concurrent.futures
 from ddg_parser import get_links
-from web_scrapper import scrape_web, NoLinkError
+from web_scrapper import scrape_web
 from rssfeed_scrapper import scrape_rss
+from feed_manager import FeedManager
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -23,7 +24,8 @@ def process_site(site):
 
 
 class Handler:
-    def __init__(self, builder):
+    def __init__(self, builder, feed_manager):
+        self.feed_manager = feed_manager
         self.ddg_query_box = builder.get_object('ddg_query_box')
         self.search_btn = builder.get_object('search_btn')
         self.feed_grid = builder.get_object('feed_grid')
@@ -32,8 +34,11 @@ class Handler:
         # Set up associations
         builder.get_object('menu').set_popover(builder.get_object('popover'))
 
-    def subscribe_to_feed(self, feed_link):
-        pass
+    def on_sub_btn_clicked(self, btn, feed_link):
+        if btn.get_active():
+            self.feed_manager.append_feed(feed_link)
+        else:
+            self.feed_manager.remove_feed(feed_link)
 
     def on_delete_window(*args):
         Gtk.main_quit(*args)
@@ -56,7 +61,7 @@ class Handler:
                 feed = feed_tuple[0]
                 feed_link = feed_tuple[1]
                 sub_btn = Gtk.CheckButton()
-                sub_btn.connect("toggled", self.subscribe_to_feed, feed_link)
+                sub_btn.connect("toggled", self.on_sub_btn_clicked, feed_link)
 
                 self.feed_grid.attach(sub_btn, 0, self.current_feed_grid_row, 1, 1)
                 sub_btn.show()
@@ -90,7 +95,7 @@ class Handler:
 def main():
     builder = Gtk.Builder()
     builder.add_from_file('window.glade')
-    builder.connect_signals(Handler(builder))
+    builder.connect_signals(Handler(builder, FeedManager()))
 
     window = builder.get_object('window')
     window.show_all()
