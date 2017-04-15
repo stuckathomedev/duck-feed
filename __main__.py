@@ -1,5 +1,6 @@
 import threading
 import signal
+import concurrent.futures
 from ddg_parser import get_links
 from webscrapper import scrape_web, NoLinkError
 from rssfeedscrapper import scrape_rss
@@ -9,17 +10,30 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
 
+def process_site(site):
+    print("SITE: " + site)
+    try:
+        feed_link = scrape_web(site)
+        print("FEED LINK: " + feed_link)
+        feed = scrape_rss(feed_link)
+        return feed, feed_link
+    except:
+        print("Encountered error, returning nothing.")
+        return None
+
+
 class Handler:
     def __init__(self, builder):
         self.ddg_query_box = builder.get_object('ddg_query_box')
         self.search_btn = builder.get_object('search_btn')
-        self.output_box = builder.get_object('output_box')
+        self.feed_grid = builder.get_object('feed_grid')
+        self.current_feed_grid_row = 2
 
         # Set up associations
         builder.get_object('menu').set_popover(builder.get_object('popover'))
 
-    def print(self, text):
-        self.output_box.set_text(self.output_box.get_text() + "\n" + text)
+    def subscribe_to_feed(self, feed_link):
+        pass
 
     def on_delete_window(*args):
         Gtk.main_quit(*args)
@@ -30,21 +44,34 @@ class Handler:
 
             def get_feeds_from_query():
                 potential_feed_sites = get_links(ddg_query)
-                for site in potential_feed_sites:
-                    print("SITE: " + site)
-                    try:
-                        feed_link = scrape_web(site)
-                    except NoLinkError:
-                        continue
 
-                    print("FEED LINK: " + feed_link)
-                    feed = scrape_rss(feed_link)
-                    print("FEED: " + str(feed))
-                    GLib.idle_add(display_feed, feed)
-                GLib.idle_add(reenable_controls)
+                with concurrent.futures.ProcessPoolExecutor() as executor:
+                    feed_tuples = executor.map(process_site, potential_feed_sites)
+                    for feed_tuple in feed_tuples:
+                        if feed_tuple is not None:
+                            GLib.idle_add(display_feed, feed_tuple)
+                    GLib.idle_add(reenable_controls)
 
-            def display_feed(feed):
-                self.print(feed["channel"]["title"])
+            def display_feed(feed_tuple):
+                feed = feed_tuple[0]
+                feed_link = feed_tuple[1]
+                sub_btn = Gtk.CheckButton()
+                sub_btn.connect("toggled", self.subscribe_to_feed, feed_link)
+
+                self.feed_grid.attach(sub_btn, 0, self.current_feed_grid_row, 1, 1)
+                sub_btn.show()
+
+                title_label = Gtk.Label(feed["channel"]["title"])
+                self.feed_grid.attach(title_label, 1, self.current_feed_grid_row, 1, 1)
+                title_label.show()
+
+                desc_label = Gtk.Label(feed["channel"]["description"])
+                self.feed_grid.attach(desc_label, 2, self.current_feed_grid_row, 1, 1)
+                desc_label.show()
+
+                self.current_feed_grid_row += 1
+
+                print("Adding to box: ", feed_link)
 
             def reenable_controls():
                 # Re-enable boxes
