@@ -60,7 +60,14 @@ class MainHandler:
 
     def on_search_btn_pressed(self, btn):
         ddg_query = self.ddg_query_box.get_text()
-        if not ddg_query == "":
+        if ddg_query == "":
+            return
+        else:
+            if ddg_query.lower() == "easter eggs?":\
+                self.ddg_query_box.set_text("No.")
+            if ddg_query.lower() == "philips exeter":
+                ddg_query = "Philips Academy, Andover"
+                self.ddg_query_box.set_text("Philips Academy, Andover")
 
             def get_feeds_from_query():
                 potential_feed_sites = get_links(ddg_query)
