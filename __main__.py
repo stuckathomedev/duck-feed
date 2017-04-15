@@ -11,7 +11,6 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit2', '4.0')
 from gi.repository import Gtk, GLib, WebKit2
-from gi_composites import GtkTemplate
 
 
 def process_site(site):
@@ -24,7 +23,6 @@ def process_site(site):
     except:
         print("Encountered error, returning nothing.")
         return None
-
 
 
 class MainHandler:
@@ -112,7 +110,6 @@ class MainHandler:
                 # Re-enable boxes
                 self.ddg_query_box.set_sensitive(True)
                 self.search_btn.set_sensitive(True)
-                self.finish_btn.set_sensitive(True)
 
             thread = threading.Thread(target=get_feeds_from_query)
             thread.daemon = True

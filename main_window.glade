@@ -55,6 +55,7 @@
     <property name="can_focus">False</property>
     <property name="default_width">440</property>
     <property name="default_height">250</property>
+    <property name="icon">icon.png</property>
     <signal name="delete-event" handler="on_delete_window" swapped="no"/>
     <child>
       <object class="GtkBox">
@@ -80,7 +81,7 @@
                 <property name="margin_right">5</property>
                 <property name="margin_top">5</property>
                 <property name="margin_bottom">5</property>
-                <property name="label" translatable="yes">Search Query:</property>
+                <property name="label" translatable="yes">Discover Feeds:</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -92,7 +93,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="activates_default">True</property>
-                <property name="placeholder_text" translatable="yes">DuckDuckGo Search Query</property>
+                <property name="placeholder_text" translatable="yes">Search DuckDuckGo...</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -190,9 +191,8 @@
         </child>
         <child>
           <object class="GtkButton" id="finish_btn">
-            <property name="label" translatable="yes">Finish Selection</property>
+            <property name="label" translatable="yes">Open Feeds</property>
             <property name="visible">True</property>
-            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="margin_top">6</property>
