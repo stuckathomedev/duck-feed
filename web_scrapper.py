@@ -6,7 +6,7 @@ class NoLinkError(Exception):
     pass
 
 def scrape_web(website):
-    r = requests.get(website)
+    r = requests.get(website, timeout=5)
 
     tree = html.fromstring(r.content)
     rss_links = tree.xpath('//link[@rel="alternate" and @type="application/atom+xml"]/@href')
