@@ -1,10 +1,11 @@
 import threading
 import signal
+from ddg_parser import get_links
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
-from ddg_parser import get_links
 
 
 class Handler:
@@ -42,6 +43,7 @@ class Handler:
             self.ddg_query_box.set_sensitive(False)
             self.search_btn.set_sensitive(False)
             print("Starting query async...")
+
 
 def main():
     builder = Gtk.Builder()
