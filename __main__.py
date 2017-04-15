@@ -10,6 +10,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit2', '4.0')
 from gi.repository import Gtk, GLib, WebKit2
+from gi_composites import GtkTemplate
 
 
 def process_site(site):
@@ -22,6 +23,7 @@ def process_site(site):
     except:
         print("Encountered error, returning nothing.")
         return None
+
 
 
 class MainHandler:
@@ -46,10 +48,10 @@ class MainHandler:
 
     def on_finish_btn_clicked(self, btn):
         self.feed_manager.update_json()
-        builder = Gtk.Builder()
-        builder.add_from_file('feed_reader.glade')
-        builder.connect_signals(ReaderHandler(self.builder, self.feed_manager))
-        window = builder.get_object('reader_window')
+        builder2 = Gtk.Builder()
+        builder2.add_from_file('feed_reader.glade')
+        builder2.connect_signals(ReaderHandler(builder2, self.feed_manager))
+        window = builder2.get_object('reader_window')
         window.show_all()
 
     def on_about_rss_btn_clicked(self, btn):
@@ -60,9 +62,7 @@ class MainHandler:
 
     def on_search_btn_pressed(self, btn):
         ddg_query = self.ddg_query_box.get_text()
-        if ddg_query == "":
-            return
-        else:
+        if not ddg_query == "":
             if ddg_query.lower() == "easter eggs?":\
                 self.ddg_query_box.set_text("No.")
             if ddg_query.lower() == "philips exeter":
@@ -122,27 +122,57 @@ class MainHandler:
             print("Starting query async...")
 
 
+@GtkTemplate(ui='feed.ui')
+class FeedEntryWidget(Gtk.Box):
+    __gtype_name__ = 'FeedEntryWidget'
+
+    title = GtkTemplate.Child()
+    url = GtkTemplate.Child()
+    description = GtkTemplate.Child()
+
+    def __init__(self, title, url, description):
+        super(Gtk.Box, self).__init__()
+        self.init_template()
+        self.title.set_text(title)
+        self.url.set_text(url)
+        self.description.set_text(description)
+
+
 class ReaderHandler:
     def __init__(self, builder, feed_manager):
         self.builder = builder
         self.feed_manager = feed_manager
+        self.box = builder.get_object('box')
+        self.notebook = Gtk.Notebook()
+        self.notebook.show()
+
+        self.box.add(self.notebook)
 
         thread = threading.Thread(target=self.load_feeds)
         thread.daemon = True
         thread.start()
 
+    def add_new_feed_tab(self, title, entries):
+        container = Gtk.Box()
+        label = Gtk.Label(title)
+        for entry in entries:
+            entryWidget = FeedEntryWidget(entry.title, "", "")
+            container.add(entryWidget)
+        container.show()
+        label.show()
+        self.notebook.append_page(container, label)
+
     def load_feeds(self):
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            feed_tuples = executor.map(scrape_rss, self.feed_manager.get_feeds())
-        print("feeds", self.feed_manager.get_feeds())
-        print(list(feed_tuples))
-        items = []
-        for feed_tuple in feed_tuples:
-            feed = feed_tuple[0]
-            items.extend(feed.entries)
-        items.sort(key=lambda entry: entry.published)
-
-        print(items)
+            feeds = executor.map(scrape_rss, self.feed_manager.get_feeds())
+        frontpage_entries = []
+        for feed in feeds:
+            feed.entries = feed.entries[:10] # Only get 1st 10
+            GLib.idle_add(self.add_new_feed_tab, feed.feed.title, feed.entries)
+            # Load into frontpage-o
+            frontpage_entries.extend(feed.entries)
+        #frontpage_entries.sort()
+        GLib.idle_add(self.add_new_feed_tab, "Frontpage", feed.entries)
 
 
 def main():
