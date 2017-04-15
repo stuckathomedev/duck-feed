@@ -89,6 +89,7 @@ class MainHandler:
                 sub_btn.show()
 
                 title_label = Gtk.Label(feed["channel"]["title"])
+                title_label.set_line_wrap(True)
                 self.feed_grid.attach(title_label, 1, self.current_feed_grid_row, 1, 1)
                 title_label.show()
 
@@ -98,6 +99,7 @@ class MainHandler:
                     feed_desc = ""
 
                 desc_label = Gtk.Label(feed_desc)
+                desc_label.set_line_wrap(True)
                 self.feed_grid.attach(desc_label, 2, self.current_feed_grid_row, 1, 1)
                 desc_label.show()
 
