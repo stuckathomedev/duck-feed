@@ -7,4 +7,4 @@ def scrapeWeb(website):
     tree = html.fromstring(r.content)
     rss_link = tree.xpath('//link[@rel="alternate" and @type="application/atom+xml"]/@href')
 
-    print("Rss: ", rss_link)
+    return rss_link
