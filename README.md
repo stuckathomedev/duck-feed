@@ -6,7 +6,7 @@ Duck feed is an desktop application that allows you to scrape the web looking fo
 
 ### What was it made for?
 
-This application was made for Hack Exeter Spring 2017! Our team name was _The Mighty Ducks_ and we won an award! We won the _developers award_ which was awarded for highest proficiency and skill. A full summary is available on the hack exeter [website](http://www.hackexeter.com/2017-spring.html)!
+This application was made for Hack Exeter Spring 2017! Our team name was _The Mighty Ducks_ and we won an award! We won the _developers award_ which was awarded for highest proficiency and skill. We're proud of it!
 
 ### Why DuckDuckGo
 
