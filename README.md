@@ -1,10 +1,14 @@
-## Welcome to GitHub Pages
+## Duck Feed
 
-You can use the [editor on GitHub](https://github.com/fyretm/duck-feed/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+# What is Duck Feed?
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Duck feed is an desktop application that allows you to scrape the web looking for RSS feeds, subscribe to them, download them, and read them online or offlines. The application also even has a built in web browser for easier flow. 
 
-### Markdown
+# What was it made for?
+
+There are some security issues involving the GTK library used for the GUI and the application may not be completly safe. Upon that
+
+### Current Issues
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
