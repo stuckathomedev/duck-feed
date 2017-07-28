@@ -4,10 +4,6 @@
 
 Duck feed is an desktop application that allows you to scrape the web looking for RSS feeds, subscribe to them, download them, and read them online or offlines. The application also even has a built in web browser for easier flow. 
 
-### What was it made for?
-
-This application was made for Hack Exeter Spring 2017! Our team name was _The Mighty Ducks_ and we won an award! We won the _developers award_ which was awarded for highest proficiency and skill. We're proud of it!
-
 ### Why DuckDuckGo
 
 Common question! It's actually really simple! There are 2 reasons we decided to use DuckDuckGo:
